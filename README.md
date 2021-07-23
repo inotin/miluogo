@@ -122,9 +122,19 @@ git clone https://github.com/inotin/miluogo.git
 ```sh
 pip install -r requirements.txt
 ```
-4. Run the script providing job name, scores for, minimum and maximum rent reates for rent keywords separated by spaces
+4. Run the script providing:
+ * job name
+ * price importance (the cheaper the better)
+ * work proximity importance (the closer offices of potential employers the better)
+ * safety importance (the further from dangerous zones the better)
+ * air quality importance (the cleaner is air the better)
+ * green importance (the more parks and green zones the better)
+ * minimum and maximum rent rates (in euro)
+
+ All of the parameters should be separated by spaces.
+
 ```sh
-python3 python3 updateMap.py 'data scientist' 2.5 2.5 2.5 2.5 2.5 800 1000
+python3 updateMap.py 'data scientist' 2.5 2.5 2.5 2.5 2.5 800 1000
 ```
 
 <!-- USAGE EXAMPLES -->
