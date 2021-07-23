@@ -122,19 +122,19 @@ git clone https://github.com/inotin/miluogo.git
 ```sh
 pip install -r requirements.txt
 ```
-4. Run the script providing product names and keywords separated by ';'
+4. Run the script providing job name, scores for, minimum and maximum rent reates for rent keywords separated by spaces
 ```sh
-python3 miluogo.py designer
+python3 python3 updateMap.py 'data scientist' 2.5 2.5 2.5 2.5 2.5 800 1000
 ```
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 Run the script providing product names and keywords separated by ';'
 ```sh
-python3 miluogo.py 'iphone 11 pro;google pixel 5;google pixel 4a' 'screen;camera;battery;materials'
+python3 updateMap.py 'data scientist' 2.5 2.5 2.5 2.5 2.5 800 1000
 ```
 
-The script generates html files with tables and plots and saves them into results/ folder for further use e.g., embed into iframes as it's done on [my website](https://notin.it/miluogo)
+The script generates interactive map in html format with scored accomodations and saves it into results/ folder for further use e.g., embed into iframe as it's done on [my website](https://notin.it/miluogo)
 
 The generated files in results/ folder are:
 * map.html - a table with scores for each keyword and mean values for each product as well as product images found with Google Image search

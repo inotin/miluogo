@@ -57,13 +57,14 @@ def getZone(loc, js='data/zonedecentramento.geojson'):
 
 def score(jobName, price_importance, work_importance, danger_importance, air_importance, green_importance, minRent = 800, maxRent = 1500):
     price_importance, work_importance, danger_importance, air_importance, green_importance = float(price_importance), float(work_importance), float(danger_importance), float(air_importance), float(green_importance)
+    dfAccommodations = dataGeneration.getAccommodationDF(maxPages=5, minPrice = minRent, maxPrice = maxRent)
     dfCompanies = dataGeneration.getCompaniesDataframe(jobName=jobName,
                                         maxPages = 3,
                                         googleAPIKey = googleCreds.GOOGLE_API_KEY)
     print(dfCompanies)
     dfGreen = dataGeneration.getGreenZonesDataframe()
     dfAirStations = dataGeneration.getAirQualityDataframe()
-    dfAccommodations = dataGeneration.getAccommodationDF(maxPages=5, minPrice = minRent, maxPrice = maxRent)
+
     # ### 2. Mean and median locations
     # Here I calculate the mean and median location of the companies' location points which should be optimal for living.
 

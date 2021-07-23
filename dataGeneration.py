@@ -136,7 +136,7 @@ def getCompaniesDataframe(googleAPIKey,
             print(name)
             companyInfo["companyName"].append(name)
             print('='*10)
-        time.sleep(1+2*random.random())
+        time.sleep(2*random.random())
         # for element in soup.find_all('div', class_="job_seen_beacon"):# id=re.compile('^job_')): #class_='tapItem fs-unmask result'):
         #     input(element)
         #     #print(element.find('a').get("href"))
@@ -188,7 +188,7 @@ def getCompaniesDataframe(googleAPIKey,
         numberOfAttempt+=1
         print(reqStatus)
         #input()
-        time.sleep(0.5)
+        time.sleep(0.5*random.random())
         #print(f'Attempt {numberOfAttempt} for {company}')
         # try:
 
@@ -428,7 +428,7 @@ def getAirQualityDataframe(resource = ['https://dati.comune.milano.it/dataset/3e
     return dfAirStations
 
 
-def getLoc(address, annot = False, api_key = googleCreds.GOOGLE_API_KEY):
+def getLoc(address, annot = True, api_key = googleCreds.GOOGLE_API_KEY):
     """
     The function returns coordinates of a given address.
 
@@ -486,6 +486,7 @@ def getAccommodationDF(minPrice = 500, maxPrice = 5000, maxPages = 10, dfPath = 
 
     pandas DataFrame
     """
+    minPrice, maxPrice = int(minPrice), int(maxPrice)
 
     urlList = [f"https://www.immobiliare.it/affitto-case/milano/?criterio=rilevanza&prezzoMinimo={minPrice}&prezzoMassimo={maxPrice}"]
     urlList+=[f"https://www.immobiliare.it/affitto-case/milano/?criterio=rilevanza&prezzoMinimo={minPrice}&prezzoMassimo={maxPrice}&pag={i+1}" for i in range(maxPages)]
@@ -496,35 +497,47 @@ def getAccommodationDF(minPrice = 500, maxPrice = 5000, maxPages = 10, dfPath = 
                "price":[]}
 
     for url in urlList:
-        session = requests.session()
-        response = session.get(url)
+        numOfObjects = 0
+        for i in range(10): #We try 10 times to get data from the page until we get result
+            session = requests.session()
+            time.sleep(2*random.random())
+            response = session.get(url)
+            print(url)
+            print(response.status_code)
+            soup = BeautifulSoup(response.text, 'html.parser')
 
-        soup = BeautifulSoup(response.text, 'html.parser')
-        try:
-            for element in zip(soup.find_all('a', class_='Card_in-card__title__234gH'),soup.find_all('li', class_="Features_nd-list__item__3hWVx Features_in-feat__item__2-hIE Features_in-feat__item--main__3EFFl RealEstateListCard_in-realEstateListCard__features--main__2uSci")):
-                objID = element[0]['href'].split("/")[-2]
-                print(objID)
-                objType = element[0]['title'].split()[0]
-                print(objType)
-                objAddress = ' '.join(element[0]['title'].split()[1:])
-                print(objAddress)
-                objPrice = int(element[1].text.split("/")[0].split()[1].replace('.',''))
-                print(objPrice)
-                print('-'*25)
-                objects["id"].append(objID)
-                objects["type"].append(objType)
-                objects["address"].append(objAddress)
-                objects["price"].append(objPrice)
-        except:
-            pass
+            try:
+                for element in zip(soup.find_all('a', class_='Card_in-card__title__234gH'),soup.find_all('li', class_="Features_nd-list__item__3hWVx Features_in-feat__item__2-hIE Features_in-feat__item--main__3EFFl RealEstateListCard_in-realEstateListCard__features--main__2uSci")):
+                    objID = element[0]['href'].split("/")[-2]
+                    print(objID)
+                    objType = element[0]['title'].split()[0]
+                    print(objType)
+                    objAddress = ' '.join(element[0]['title'].split()[1:])
+                    print(objAddress)
+                    objPrice = int(element[1].text.split("/")[0].split()[1].replace('.',''))
+                    print(objPrice)
+                    print('-'*25)
+                    objects["id"].append(objID)
+                    objects["type"].append(objType)
+                    objects["address"].append(objAddress)
+                    objects["price"].append(objPrice)
+            except:
+                print('No objects found on the page')
+
+            numOfObjects = len(objects['id'])
+            print(numOfObjects)
+            if numOfObjects != 0:
+                break
 
     print(f"All successful. {len(objects['id'])} objects has been added")
 
     dfObjects = pd.DataFrame(objects)
     dfObjects["coords"] = dfObjects["address"].map(getLoc)
     dfObjects.dropna(inplace = True)
-    if savePickle:
+
+    if len(dfObjects)!=0 and savePickle:
         dfObjects.to_pickle(dfPath+'dfAccommodationsExpanded.pkl')
+    print(dfObjects)
     return dfObjects
 
 
