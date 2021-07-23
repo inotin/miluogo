@@ -137,31 +137,7 @@ def getCompaniesDataframe(googleAPIKey,
             companyInfo["companyName"].append(name)
             print('='*10)
         time.sleep(2*random.random())
-        # for element in soup.find_all('div', class_="job_seen_beacon"):# id=re.compile('^job_')): #class_='tapItem fs-unmask result'):
-        #     input(element)
-        #     #print(element.find('a').get("href"))
-        #     try:
-        #         currentLink = element.find('a').get("href")
-        #         companyInfo["link"].append("https://it.indeed.com"+currentLink)
-        #         #print("Link: "+"https://it.indeed.com"+currentLink)
-        #     except:
-        #         print("Error adding link")
-        #         companyInfo["link"].append(np.nan)
-        #         #print(element)
-        #         #input()
-        #
-        #     try:
-        #         jobName = element.find('h2', class_="jobTitle jobTitle-color-purple").text.strip()
-        #         #print(jobName)
-        #         #print("JobName Try Branch")
-        #     except:
-        #         jobName = element.text.strip()
-        #         #print(jobName)
-        #         #print("JobName Except Branch")
-        #     input(jobName)
-        #     companyInfo["jobName"].append(jobName)
 
-    #Sanity check if any info was lost/missed
     print(len(companyInfo["companyName"]))
     print(len(companyInfo["jobName"]))
     print(len(companyInfo["link"]))
@@ -270,20 +246,8 @@ def getGreenZonesDataframe(resource = "https://dati.comune.milano.it/dataset/da6
         dfGreenRaw = pd.read_pickle(dfPath+'dfGreenRaw.pkl')
 
     dfGreenRaw["Superficie totale in mq"] = dfGreenRaw["Superficie totale in mq"].apply(lambda x: float(str(x).replace(",",".")))
-
-
-
-
     dfGreenRaw = dfGreenRaw.groupby(by="Zona").sum()
     dfGreenRaw = dfGreenRaw.reset_index()
-
-
-
-
-    # Getting info on total area of each zone from Wikipedia
-
-    # In[18]:
-
 
     dfZones = pd.read_html('https://en.wikipedia.org/wiki/Municipalities_of_Milan',
                               flavor='bs4')
@@ -300,7 +264,7 @@ def getGreenZonesDataframe(resource = "https://dati.comune.milano.it/dataset/da6
 
     #Converting m2 to km2
     dfGreen["GreenArea"] = dfGreen["GreenArea"]/1000000
-
+    #Calculating concentration
     dfGreen["GreenConc"] = dfGreen["GreenArea"]/dfGreen["TotalArea"]
 
     if savePickle:
@@ -313,8 +277,6 @@ def getGreenZonesDataframe(resource = "https://dati.comune.milano.it/dataset/da6
 # ### 5. Air Quality
 # In this section I analyze data on contamination for 2019 and 2020 obtained from stations located in Milano.
 # I will calculate an Eco score which is an inverted value of mean normalized concentrations of contaminants.
-
-# In[38]:
 
 
 def getAirQualityDataframe(resource = ['https://dati.comune.milano.it/dataset/3e752fec-06fd-421b-ae9b-4d5d7a177640/resource/698a58e6-f276-44e1-92b1-3d2b81a4ad47/download/qaria_datoariagiornostazione_2020-01-08.csv',
@@ -386,11 +348,6 @@ def getAirQualityDataframe(resource = ['https://dati.comune.milano.it/dataset/3e
 
     stationsPath = 'https://dati.comune.milano.it/dataset/d6960c75-0a02-4fda-a85f-3b1c4aa725d6/resource/635c6508-b335-48b1-b3c8-d43e78ad3380/download/qaria_stazione.geojson'
 
-    # with open(stationsPath) as data_file:
-    #     data = json.load(data_file)
-
-    # stationsData = urlopen(stationsPath)
-    # stationsData = json.load(stationsData)
     try:
         stationsData = requests.get(stationsPath).json()
         dctStations = {"id_amat":[],
@@ -407,13 +364,9 @@ def getAirQualityDataframe(resource = ['https://dati.comune.milano.it/dataset/3e
         dfStations = pd.read_pickle(dfPath+"dfStations.pkl")
     dfAirStations = dfAir.merge(dfStations, left_on='id_amat', right_on='id_amat')
 
-
-
     # Need to separate the coordinates for further modelling
     dfAirStations["lt"] = dfAirStations["coords"].map(lambda x: x[0])
     dfAirStations["lg"] = dfAirStations["coords"].map(lambda x: x[1])
-
-
 
     if savePickle:
         dfAirRaw.to_pickle(dfPath+'dfAirRaw.pkl')
@@ -452,6 +405,7 @@ def getLoc(address, annot = True, api_key = googleCreds.GOOGLE_API_KEY):
         if annot:
             print(address + " was skipped. Probably was not found\n")
         return np.nan
+
 
 def getAccommodationDF(minPrice = 500, maxPrice = 5000, maxPages = 10, dfPath = "data/", savePickle = True):
 
@@ -539,96 +493,3 @@ def getAccommodationDF(minPrice = 500, maxPrice = 5000, maxPages = 10, dfPath = 
         dfObjects.to_pickle(dfPath+'dfAccommodationsExpanded.pkl')
     print(dfObjects)
     return dfObjects
-
-
-#
-# # ### Defining Zone for each object
-# import json
-# from shapely.geometry import shape, Point
-# with open('data/zonedecentramento.geojson') as f:
-#     js = json.load(f)
-#
-#
-# dfObjects["Zone"] = dfObjects["coords"].map(lambda x: getZone(x, js))
-#
-#
-# dfObjects= pd.merge(dfObjects, dfGreen, left_on='Zone', right_on="ZONADEC", right_index=False, how='left', sort=False)
-#
-#
-#
-# dfObjects.drop(columns=["TotalArea","GreenArea", "ZONADEC"], inplace = True)
-#
-# dfObjects.columns = list(dfObjects.columns[:-1])+["GreenConc"]
-#
-# dfObjects["lt"] = dfObjects["coords"].map(lambda x: x[0])
-# dfObjects["lg"] = dfObjects["coords"].map(lambda x: x[1])
-#
-#
-# dfObjects.to_csv("dfObjectsUnscored.csv", index = False)
-#
-#
-# airWeight, safetyWeight, jobWeight, greenWeight, priceWeight  = 5, 5, 5, 5, 5
-#
-# dfObjects[["price"]].hist()
-#
-#
-# # Let's scale it and transform using log function.
-# scaler = preprocessing.MinMaxScaler()
-# dfObjects["priceLogScaled"] = scaler.fit_transform(np.log(dfObjects[["price"]]))
-# numColumns = ["priceLogScaled", "contamination", "distanceToDangerZone",
-#                      "distanceToMedianJobLocation","GreenConc"]
-# dfObjects["totalScore"]=dfObjects.apply(lambda x: totalScore([x[i] for i in numColumns]), axis=1)
-# dfObjects
-#
-#
-# # In[ ]:
-#
-#
-# dfObjects["priceLogScaled"].hist()
-#
-#
-# # ### Saving DF
-# dfObjects.to_csv("dfObjects.csv", index = False)
-#
-#
-# # ### Creating a model for predicting price
-#
-# # #### Leaving only numerical columns
-#
-# # In[ ]:
-#
-#
-# numColumns = ["price", "contamination", "distanceToDangerZone",
-#                      "distanceToMedianJobLocation","GreenConc"]
-# dfFinal = dfObjects[["price", "contamination", "distanceToDangerZone",
-#                      "distanceToMedianJobLocation","GreenConc"]]
-# dfFinal
-#
-#
-# # #### Scaling
-#
-# # In[ ]:
-#
-#
-# from sklearn import preprocessing
-# scaler = preprocessing.MinMaxScaler()
-# scaled = scaler.fit_transform(dfFinal)
-# dfFinal = pd.DataFrame(scaled)
-# dfFinal.columns = numColumns
-#
-#
-#
-#
-# priceWeight = 5
-# dfFinal["totalScore"]=dfFinal.apply(lambda x: totalScore([x[i] for i in dfFinal.columns]), axis=1)
-# dfFinal
-#
-#
-#
-#
-# dfObjectsScored = pd.concat([dfObjects[["id", "type", "address", "price","coords","lt","lg"]], dfFinal[["totalScore"]]], axis = 1)
-#
-#
-#
-#
-# dfObjectsScored.to_csv("dfObjectsScored.csv", index = False)

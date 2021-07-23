@@ -83,10 +83,26 @@ What will you get?
 Of course, there's a lot to do to calibrate the model but I get the results pretty close to expected.
 
 ### To Do List
+- [x] Correct formatting of companies' markers
+- [x] Add job description links to companies' markers
+- [x] Add price range choice for apartments search
+- [ ] Add a possibility to choose a type of apartments (bilocale, trilocale, etc.)
+- [x] Create functions for forming each dataset
+- - [x] Companies data
+- - [x] Dangerous zones data
+- - [x] Green zones data
+- - [x] Air quality data
+- - [x] Real estate data
+- [x] Update total score heatmap on a callback
+- [x] Map layers should be turned off by default (except objects layer and total score heatmap)
+- [x] Add layer controls as app components.
+- - [ ] Selective update of layers for eliminating map rerendering from scratch -> layer creation as functions
+- - [ ] Layer update function
+- [ ] Add status bar/string
 - [x] Make initial commit
-- [ ] Add comments to the functions
-- [ ] Clean and format notebooks
-- [ ] Update README.md.
+- [x] Add comments to the functions
+- [x] Clean and format notebooks
+- [x] Update README.md.
 - [ ] Implement JSON output for results
 
 
