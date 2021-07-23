@@ -84,13 +84,10 @@ Of course, there's a lot to do to calibrate the model but I get the results pret
 
 ### To Do List
 - [x] Make initial commit
-- [x] Add comments to the functions
-- [x] Implement semantic analysis using Vader
-- [x] Update README.md.
-- [x] Weird things are going on with p-values. Recheck the corresponding function
+- [ ] Add comments to the functions
+- [ ] Clean and format notebooks
+- [ ] Update README.md.
 - [ ] Implement JSON output for results
-- [ ] Implement automatic keywords detection
-- [ ] Add support of text reviews
 
 
 ### Built With
